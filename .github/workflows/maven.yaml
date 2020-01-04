@@ -15,32 +15,8 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - name: Dump job context
-      env:
-        JOB_CONTEXT: ${{ toJson(job) }}
-      run: echo "$JOB_CONTEXT"
-    - name: Dump steps context
-      env:
-        STEPS_CONTEXT: ${{ toJson(steps) }}
-      run: echo "$STEPS_CONTEXT"
-    - name: Dump runner context
-      env:
-        RUNNER_CONTEXT: ${{ toJson(runner) }}
-      run: echo "$RUNNER_CONTEXT"
-    - name: Dump strategy context
-      env:
-        STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-      run: echo "$STRATEGY_CONTEXT"
-    - name: Dump matrix context
-      env:
-        MATRIX_CONTEXT: ${{ toJson(matrix) }}
-      run: echo "$MATRIX_CONTEXT"
     - name: Deploy to Bintray
       env:
         SERVER_PASSWORD: ${{ secrets.BINTRAY_API_KEY }}
       run: mvn -B -s settings.xml deploy
-      if: github.event == 'push' && github.ref == 'refs/heads/master'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
