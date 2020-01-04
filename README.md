@@ -1,2 +1,2 @@
 # javautils
-Java General Utilities Library
+Java Utilities Library
