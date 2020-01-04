@@ -15,6 +15,8 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Echo
+      run: echo $GITHUB_REF
     - name: Deploy to Bintray
       env:
         SERVER_PASSWORD: ${{ secrets.BINTRAY_API_KEY }}
