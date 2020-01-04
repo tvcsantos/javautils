@@ -5,7 +5,7 @@
 
     <groupId>pt.com.santos.util</groupId>
     <artifactId>java-util</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.0.2</version>
     <packaging>jar</packaging>
 
     <name>JavaUtils</name>
