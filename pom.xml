@@ -5,7 +5,7 @@
 
     <groupId>pt.com.santos.util</groupId>
     <artifactId>java-util</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>JavaUtils</name>
@@ -70,6 +70,18 @@
                         <id>attach-sources</id>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- deploy test jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
                         </goals>
                     </execution>
                 </executions>

@@ -30,7 +30,7 @@ import pt.com.santos.util.Similarity;
 import pt.com.santos.util.collection.CollectionUtilities;
 import pt.com.santos.util.download.Downloader;
 import pt.com.santos.util.encoding.Base64;
-import pt.com.santos.util.subtitle.AbstractSubtitleDescriptor;
+import pt.com.santos.util.exception.EncoderException;
 import pt.com.santos.util.subtitle.Language;
 import pt.com.santos.util.subtitle.SubtitleAttributes;
 import pt.com.santos.util.subtitle.SubtitleDescriptor;
@@ -87,7 +87,7 @@ public abstract class SubtitleDownloader implements Downloader {
     protected Set<Language> langs;
     protected File saveDirectory;
     protected long countID;
-    protected Language[] supportedLanguages;
+    protected Set<Language> supportedLanguages;
     protected int priority;
 
     /** for downloaders with authentication **/
@@ -103,12 +103,14 @@ public abstract class SubtitleDownloader implements Downloader {
     protected InputStream is = null;
     
     protected Similarity<String> textSimilarity;
+    protected Base64 base64;
 
     /// CACHE TEST ///
     //protected DoubleMap<String, File> md5ChecksumCache;
     //////////////////
     
-    public SubtitleDownloader(List<String> fileNames, Set<Language> langs,
+    public SubtitleDownloader(
+            List<String> fileNames, Set<Language> langs,
             File saveDirectory) {
         this.fileNames = fileNames;
         this.langs = langs;
@@ -118,7 +120,10 @@ public abstract class SubtitleDownloader implements Downloader {
         this.logger.setUseParentHandlers(false);
         this.priority = 0;
         this.authenticationNeeded = false;
+        this.base64 = initBase64();
     }
+    
+    protected abstract Base64 initBase64();
 
     public SubtitleDownloader(List<String> fileNames, File saveDirectory) {
         this(fileNames, new HashSet<Language>(), saveDirectory);
@@ -172,9 +177,8 @@ public abstract class SubtitleDownloader implements Downloader {
 
     public boolean isSupported(Language lang) {
         if (lang == null) return false;
-        for (Language l : supportedLanguages)
-            if (lang.equals(l)) return true;
-        return false;
+        return supportedLanguages != null && 
+                supportedLanguages.contains(lang);
     }
 
     public void setFileNames(List<String> fileNames) {
@@ -195,7 +199,7 @@ public abstract class SubtitleDownloader implements Downloader {
         }
     }
 
-    protected abstract Language[] initSupportedLanguages();
+    protected abstract Set<Language> initSupportedLanguages();
 
     protected SubtitleAttributes getInfoFromDiskFile(String fileName)
             throws UnsupportedFormatException
@@ -303,7 +307,7 @@ public abstract class SubtitleDownloader implements Downloader {
                         }
                     }
 
-                    sharedLogger.log(Level.INFO, hashU + "not in md5cache",
+                    sharedLogger.log(Level.INFO, hashU + " not in md5cache",
                             md5ChecksumCache.toString());
                 }
 
@@ -347,8 +351,7 @@ public abstract class SubtitleDownloader implements Downloader {
                         float fcmp = textSimilarity == null ? 0 :
                                 textSimilarity.similarity(
                                     FileUtilities.getContent(theFile), 
-                                        AbstractSubtitleDescriptor.
-                                            getSubtitleFileContent(di));
+                                        di.getContent());
                         if (fcmp > 0.5) { // equal files
                             System.out.println("EQUAL FILES!");
                             skip = true;
@@ -364,7 +367,7 @@ public abstract class SubtitleDownloader implements Downloader {
 
                 if (skip) continue;
 
-                di.saveData(theFile);
+                di.saveContent(theFile);
 
                 CollectionUtilities.put(dfileName, theFile, res);
                 
@@ -434,7 +437,12 @@ public abstract class SubtitleDownloader implements Downloader {
         byte[] arr = bos.toByteArray();
         bos.flush();
         bos.close();
-        String data = Base64.encode(arr);
+        try {
+            String data = base64.encodeToString(arr);
+            si.setData(data);
+        } catch (EncoderException ex) {
+            throw new IOException(ex);
+        }
         String hash = si.getSubHash();
         if (hash == null) {
             try {
@@ -443,7 +451,6 @@ public abstract class SubtitleDownloader implements Downloader {
             } catch (NoSuchAlgorithmException ex) {}
         }
         si.setSubHash(hash);
-        si.setData(data);
         res.add(si);
         return res;
     }
@@ -467,5 +474,9 @@ public abstract class SubtitleDownloader implements Downloader {
     
     public void setTextSimilarity(Similarity<String> textSimilarity) {
         this.textSimilarity = textSimilarity;
+    }
+    
+    public void setBase64(Base64 base64) {
+        this.base64 = base64;
     }
 }

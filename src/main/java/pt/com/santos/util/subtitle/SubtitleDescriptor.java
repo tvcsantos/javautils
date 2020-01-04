@@ -16,7 +16,7 @@ public interface SubtitleDescriptor extends Serializable {
 
     void setSubFileName(String subFileName);
 
-    void saveData(File f) throws IOException;
+    void saveContent(File f) throws IOException;
 
     String getSubHash();
 
@@ -41,4 +41,6 @@ public interface SubtitleDescriptor extends Serializable {
     String getDownFileName();
 
     void setDownFileName(String downFileName);
+    
+    String getContent() throws IOException;
 }

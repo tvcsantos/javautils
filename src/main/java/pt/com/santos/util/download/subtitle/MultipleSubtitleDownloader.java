@@ -109,7 +109,7 @@ public abstract class MultipleSubtitleDownloader extends SubtitleDownloader {
     public Map<String, List<File>> downloadSubs() throws IOException {
         Map<String, List<File>> res = new HashMap<String, List<File>>();
         for (SubtitleDownloader sd : list) {
-            logger.log(Level.INFO, "Loading {0}", sd.getClass().getName());
+            logger.log(Level.FINE, "Loading {0}", sd.getClass().getName());
             CollectionUtilities.mergeD(res, sd.downloadSubs());
         }
         return res;

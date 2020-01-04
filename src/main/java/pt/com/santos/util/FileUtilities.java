@@ -360,7 +360,7 @@ public final class FileUtilities {
         }
     }
 
-    protected static void copy(InputStream is, OutputStream os)
+    public static void copy(InputStream is, OutputStream os)
             throws IOException {
         int i = -1;
         while ((i = is.read()) != -1) {

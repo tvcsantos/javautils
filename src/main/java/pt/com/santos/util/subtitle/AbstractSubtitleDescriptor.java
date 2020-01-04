@@ -5,16 +5,40 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import pt.com.santos.util.FileUtilities;
-import pt.com.santos.util.encoding.Base64;
+import pt.com.santos.util.encoding.BinaryDecoder;
+import pt.com.santos.util.exception.DecoderException;
 
 public abstract class AbstractSubtitleDescriptor
         implements SubtitleDescriptor {
+    protected BinaryDecoder decoder;
 
-    public final void saveData(File file) throws IOException {
-        byte[] bytes = Base64.decode(getData()).getBytes();
+    public AbstractSubtitleDescriptor(BinaryDecoder decoder) {
+        this.decoder = decoder;
+    }
+        
+    public final void saveContent(File file) throws IOException {
+        byte[] bytes = getBytesFromContent();
         saveDataBytes(file, bytes);
     }
-
+    
+    protected byte[] getBytesFromContent() throws IOException {
+        try {
+            return decoder.decodeFromString(getData());
+        } catch (DecoderException ex) {
+            throw new IOException(ex);
+        }
+    }
+    
+    public String getContent() throws IOException {
+        try {
+            byte[] bytes = decoder.decodeFromString(getData());
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+            return FileUtilities.getContent(bis);
+        } catch (DecoderException ex) {
+            throw new IOException(ex);
+        }
+    }
+    
     protected void saveDataBytes(File file, byte[] bytes) throws IOException {
         ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
         int b = -1;
@@ -26,14 +50,4 @@ public abstract class AbstractSubtitleDescriptor
         fos.close();
         bis.close();
     }
-
-    public static String getSubtitleFileContent(SubtitleDescriptor sd)
-            throws IOException {
-        String data = sd.getData();
-        if (data == null) return null;
-        byte[] bytes = Base64.decode(data).getBytes();
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-        return FileUtilities.getContent(bis);
-    }
-
 }
