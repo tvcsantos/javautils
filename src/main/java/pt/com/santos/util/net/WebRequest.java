@@ -34,6 +34,28 @@ import pt.com.santos.util.io.ByteBufferOutputStream;
 
 public final class WebRequest {
 
+    public static HttpURLConnection redirect(HttpURLConnection conn)
+            throws IOException {
+        // normally, 3xx is redirect
+        int status = conn.getResponseCode();
+        if (status != HttpURLConnection.HTTP_OK) {
+            if (status == HttpURLConnection.HTTP_MOVED_TEMP
+                    || status == HttpURLConnection.HTTP_MOVED_PERM
+                    || status == HttpURLConnection.HTTP_SEE_OTHER) {
+                // get redirect url from "location" header field
+                String newUrl = conn.getHeaderField("Location");
+
+                // get the cookie if need, for login
+                String cookies = conn.getHeaderField("Set-Cookie");
+
+                // open the new connnection again
+                conn = (HttpURLConnection) new URL(newUrl).openConnection();
+                conn.setRequestProperty("Cookie", cookies);
+            }
+        }
+        return conn;
+    }
+    
     public static Document getHtmlDocument(URL url)
             throws IOException, SAXException {
         return getHtmlDocument(url.openConnection());

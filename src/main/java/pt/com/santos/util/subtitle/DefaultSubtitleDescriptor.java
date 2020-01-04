@@ -1,6 +1,9 @@
 package pt.com.santos.util.subtitle;
 
-public class DefaultSubtitleDescriptor extends AbstractSubtitleDescriptor
+import pt.com.santos.util.encoding.BinaryDecoder;
+
+public class DefaultSubtitleDescriptor 
+    extends AbstractSubtitleDescriptor
     implements SubtitleDescriptor {
     protected String subFileName;
     protected String subHash;
@@ -13,12 +16,15 @@ public class DefaultSubtitleDescriptor extends AbstractSubtitleDescriptor
     protected String type;
     protected String name;
 
-    public DefaultSubtitleDescriptor(String subFileName, String ISO639) {
-        this(subFileName, ISO639, null, null, null);
+    public DefaultSubtitleDescriptor(BinaryDecoder decoder,
+            String subFileName, String ISO639) {
+        this(decoder, subFileName, ISO639, null, null, null);
     }
     
-    public DefaultSubtitleDescriptor(String subFileName, String ISO639, 
+    public DefaultSubtitleDescriptor(BinaryDecoder decoder,
+            String subFileName, String ISO639, 
             String languageName, String type, String name) {
+        super(decoder);
         this.subFileName = subFileName;
         this.ISO639 = ISO639;
         this.languageName = languageName;
@@ -93,5 +99,5 @@ public class DefaultSubtitleDescriptor extends AbstractSubtitleDescriptor
     public String getType() {
         return type;
     }
-
+    
 }
